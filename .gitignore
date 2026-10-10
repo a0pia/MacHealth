@@ -1,0 +1,8 @@
+.build/
+build/
+.DS_Store
+.swiftpm/
+
+# Üçüncü taraf referans görselleri (lisanslı / filigranlı; depoya konmaz)
+logoornek.png
+tema.jpg
