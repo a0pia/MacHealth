@@ -33,6 +33,7 @@ enum FoldersScanner {
     private static let ignoredEntries: Set<String> = [".DS_Store", ".localized", "Icon\r"]
 
     static func scan() -> ScanResult {
+        if Demo.isOn { return Demo.folders }
         let tops = ((try? FileManager.default.contentsOfDirectory(atPath: home.path)) ?? [])
             .filter { $0 != "Library" && !$0.hasPrefix(".") }
             .map { home.appendingPathComponent($0) }

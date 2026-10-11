@@ -10,6 +10,7 @@ enum LargeFilesScanner {
     }
 
     static func scan(_ options: Options) -> ScanResult {
+        if Demo.isOn { return Demo.largeFiles }
         var denied: [String] = []
         let (large, old) = walkHome(options)
         let backups = iosBackups(denied: &denied)

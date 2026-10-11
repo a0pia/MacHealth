@@ -11,6 +11,7 @@ enum Permissions {
     private static var cached: Bool?
 
     static var hasFullDiskAccess: Bool {
+        if Demo.isOn { return true }
         lock.lock(); defer { lock.unlock() }
         if let cached { return cached }
         let v = probeFullDiskAccess()

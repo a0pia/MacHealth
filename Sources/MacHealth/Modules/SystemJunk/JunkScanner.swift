@@ -31,6 +31,7 @@ enum JunkScanner {
     ]
 
     static func scan() -> ScanResult {
+        if Demo.isOn { return Demo.junk }
         let running = runningBundleIDs()
         // Tam Disk Erişimi olmadan okunamayan yollar
         let denied = [TrashService.trashPath, h("Library/Caches/com.apple.Safari").path]

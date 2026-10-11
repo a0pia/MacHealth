@@ -171,13 +171,15 @@ struct CapsuleBar: View {
 /// Görseldeki hatchli + sarı dolgulu dalga grafiği benzeri basit alan grafiği.
 struct WaveSparkline: View {
     let values: [Double]
+    /// Ölçeğin alt sınırı; dar aralıkta gezen değerlerde (ör. pil sağlığı %94–100) değişimin görünmesi için.
+    var floor: Double = 0
     var body: some View {
         GeometryReader { geo in
-            let maxV = max(values.max() ?? 1, 0.0001)
+            let maxV = max(values.max() ?? 1, floor + 0.0001)
             let pts = values.enumerated().map { i, v in
                 CGPoint(
                     x: geo.size.width * CGFloat(i) / CGFloat(max(values.count - 1, 1)),
-                    y: geo.size.height * (1 - CGFloat(v / maxV) * 0.85)
+                    y: geo.size.height * (1 - CGFloat((v - floor) / (maxV - floor)) * 0.85)
                 )
             }
             ZStack {

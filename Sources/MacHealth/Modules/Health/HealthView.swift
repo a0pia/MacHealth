@@ -170,8 +170,13 @@ struct HealthView: View {
 
                 if model.history.count >= 2 {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("Pil sağlığı geçmişi").font(.label(11)).foregroundStyle(Theme.inkMuted)
-                        WaveSparkline(values: model.history.map { $0.health * 100 - 50 })
+                        let values = model.history.map { $0.health * 100 }
+                        HStack {
+                            Text("Pil sağlığı geçmişi").font(.label(11)).foregroundStyle(Theme.inkMuted)
+                            Spacer()
+                            Text("%\(Int(values.first ?? 0)) → %\(Int(values.last ?? 0))").font(.label(11)).foregroundStyle(Theme.inkMuted)
+                        }
+                        WaveSparkline(values: values, floor: max(0, (values.min() ?? 0) - 3))
                             .frame(height: 50).clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                 } else {

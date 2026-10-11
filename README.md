@@ -6,6 +6,22 @@
 
 <p align="center">macOS için Türkçe bakım ve sağlık uygulaması: gereksiz dosyaları bulur, <b>önce gösterir</b>, onayınla Çöp Kutusu'na taşır.</p>
 
+<p align="center">
+  <img src="docs/screenshots/ana-sayfa.png" alt="MacHealth Ana Sayfa" width="900">
+</p>
+
+---
+
+## Ekran görüntüleri
+
+| | |
+|:---:|:---:|
+| <img src="docs/screenshots/sistem-copu.png" alt="Sistem Çöpü" width="440"><br>**Sistem Çöpü** – önbellek, log ve geliştirici artıkları | <img src="docs/screenshots/uygulamalar.png" alt="Uygulamalar" width="440"><br>**Uygulamalar** – kullanılmayanları bul, artıklarıyla kaldır |
+| <img src="docs/screenshots/mac-sagligi.png" alt="Mac Sağlığı" width="440"><br>**Mac Sağlığı** – pil, güvenlik ve depolama tek puanda | <img src="docs/screenshots/disk-haritasi.png" alt="Disk Haritası" width="440"><br>**Disk Haritası** – yer kaplayan klasörleri görsel olarak gez |
+| <img src="docs/screenshots/hizlandir.png" alt="Hızlandır" width="440"><br>**Hızlandır** – başlangıç öğeleri ve bakım araçları | |
+
+<sub>Görseller demo verisiyle üretilmiştir (`MacHealth --demo --screenshots docs/screenshots`).</sub>
+
 ---
 
 ## Özellikler
@@ -55,4 +71,5 @@ swift build
 .build/debug/MacHealth --report                      # tarama sonuçlarını yazdırır (hiçbir şey silmez)
 .build/debug/MacHealth --snapshot <klasör> [modül]   # ekranları PNG olarak çizer
 .build/debug/MacHealth --render-logo logo.png 1024   # logoyu PNG olarak üretir
+.build/debug/MacHealth --demo --screenshots <klasör> # demo verisiyle gerçek pencereden ekran görüntüleri (2x)
 ```

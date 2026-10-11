@@ -28,6 +28,7 @@ final class MemoryModel: ObservableObject {
             let (s, p) = await Task.detached { (SystemInfo.memory(), SystemInfo.processes()) }.value
             stats = s
             processes = Array(p.sorted { $0.memory > $1.memory }.prefix(25))
+            if Demo.isOn && history.isEmpty { history = Demo.memoryHistory }
             history.append(s.usedFraction)
             if history.count > 60 { history.removeFirst(history.count - 60) }
         }

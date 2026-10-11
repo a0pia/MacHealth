@@ -12,6 +12,10 @@ enum Snapshot {
         if args.contains("--report") { report(); return }
         if args.contains("--selftest") { selfTest(); return }
         if let i = args.firstIndex(of: "--layer-test"), i + 1 < args.count { layerTest(URL(fileURLWithPath: args[i + 1])); return }
+        if let i = args.firstIndex(of: "--screenshots"), i + 1 < args.count {
+            screenshots(URL(fileURLWithPath: args[i + 1]), modules: args.dropFirst(i + 2).compactMap(Module.init(rawValue:)))
+            return
+        }
         guard let i = args.firstIndex(of: "--snapshot"), i + 1 < args.count else { return }
         let dir = URL(fileURLWithPath: args[i + 1])
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
@@ -74,6 +78,52 @@ enum Snapshot {
             state.celebration = 12_400_000_000
             try? await Task.sleep(for: .milliseconds(900))
             save(MainWindow().environmentObject(state).environmentObject(HistoryStore.shared).frame(width: snapSize.width, height: snapSize.height), "celebration.png")
+            NSApp.terminate(nil)
+        }
+    }
+
+    /// `MacHealth --screenshots <klasör> [modül…]`: gerçek pencereyi açıp her modülün ekran görüntüsünü (2x) kaydeder.
+    /// ImageRenderer'ın aksine anahtar, arama kutusu gibi AppKit kontrolleri de çizilir; ekran kaydı izni gerekmez.
+    static func screenshots(_ dir: URL, modules: [Module]) {
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        Task { @MainActor in
+            let state = AppState()
+            await state.junk.scan()
+            await state.speedUp.load()
+            await state.uninstaller.load()
+            await state.diskMap.load().value
+            await state.health.load()
+            await state.largeFiles.scan()
+            await state.folders.scan()
+            await state.uninstaller.scanOrphans()
+            await state.insights.load(uninstaller: state.uninstaller)
+            let window = NSWindow(contentRect: NSRect(origin: .zero, size: snapSize),
+                                  styleMask: [.titled, .fullSizeContentView], backing: .buffered, defer: false)
+            window.titlebarAppearsTransparent = true
+            window.titleVisibility = .hidden
+            window.contentView = NSHostingView(rootView: MainWindow()
+                .environmentObject(state)
+                .environmentObject(HistoryStore.shared)
+                .frame(width: snapSize.width, height: snapSize.height)
+                .preferredColorScheme(.light))
+            window.center()
+            window.orderFront(nil)
+            for m in modules.isEmpty ? Module.allCases : modules {
+                state.go(m)
+                // Tanıtım için en çok yer kaplayan "gereksiz olabilir" uygulamayı seç
+                let apps = state.uninstaller.apps
+                if m == .uninstaller, let pick = apps.filter({ $0.category == .unneeded }).max(by: { $0.totalSize < $1.totalSize })
+                    ?? apps.max(by: { $0.totalSize < $1.totalSize }) { state.uninstaller.select(pick) }
+                try? await Task.sleep(for: .milliseconds(2500))
+                guard let view = window.contentView,
+                      let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(view.bounds.width * 2), pixelsHigh: Int(view.bounds.height * 2),
+                                                 bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+                                                 colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0) else { continue }
+                rep.size = view.bounds.size   // 2x (Retina) çözünürlük
+                view.cacheDisplay(in: view.bounds, to: rep)
+                try? rep.representation(using: .png, properties: [:])?.write(to: dir.appendingPathComponent("\(m.rawValue).png"))
+                print("✓ \(m.rawValue)")
+            }
             NSApp.terminate(nil)
         }
     }

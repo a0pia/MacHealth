@@ -34,6 +34,7 @@ final class SpaceInsightsModel: ObservableObject {
     func invalidate() { loaded = false }
 
     nonisolated static func scan(apps: [AppInfo]) -> [SpaceHog] {
+        if Demo.isOn { return Demo.spaceHogs }
         let home = SafetyGuard.home
         var out: [SpaceHog] = []
 

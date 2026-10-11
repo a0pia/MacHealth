@@ -12,7 +12,9 @@ final class HistoryStore: ObservableObject {
         AppPaths.support.appendingPathComponent("history.json")
     }()
 
-    init() { load() }
+    init() {
+        if Demo.isOn { records = Demo.history } else { load() }
+    }
 
     var totalFreed: Int64 { records.filter { !$0.restored }.reduce(0) { $0 + $1.totalSize } }
     var lastRestorable: CleanupRecord? { records.first { $0.canRestore } }
@@ -45,6 +47,7 @@ final class HistoryStore: ObservableObject {
     }
 
     private func save() {
+        guard !Demo.isOn else { return }   // demo kayıtları gerçek geçmişin üzerine yazılmasın
         let e = JSONEncoder()
         e.dateEncodingStrategy = .iso8601
         try? e.encode(records).write(to: url, options: .atomic)

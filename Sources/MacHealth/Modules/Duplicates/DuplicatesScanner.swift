@@ -8,6 +8,7 @@ enum DuplicatesScanner {
     struct Candidate { let url: URL; let size: Int64; let created: Date?; let modified: Date? }
 
     static func scan(minSize: Int64 = 512 * 1024) -> ScanResult {
+        if Demo.isOn { return Demo.duplicates }
         let files = collect(minSize: minSize)
 
         // 1) Aynı boyuttakiler

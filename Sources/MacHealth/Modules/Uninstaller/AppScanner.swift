@@ -83,6 +83,7 @@ enum AppScanner {
     // MARK: - Uygulama listesi
 
     static func installedApps() -> [AppInfo] {
+        if Demo.isOn { return Demo.apps }
         let roots = [URL(fileURLWithPath: "/Applications"), home.appendingPathComponent("Applications")]
         var urls: [URL] = []
         for root in roots {
@@ -142,6 +143,7 @@ enum AppScanner {
 
     /// Uygulamaya ait Library dosyalarını bulur.
     static func leftovers(for app: AppInfo) -> [CleanItem] {
+        if Demo.isOn { return Demo.leftovers(for: app) }
         var keys: [String] = []
         if let id = app.bundleID { keys.append(id.lowercased()) }
         let name = app.name.lowercased()
@@ -207,6 +209,7 @@ enum AppScanner {
 
     /// Artık yüklü olmayan uygulamalardan kalan dosyalar.
     static func orphans(installed: [AppInfo]) -> [CleanItem] {
+        if Demo.isOn { return Demo.orphans }
         let installedIDs = Set(installed.compactMap { $0.bundleID?.lowercased() })
         // Tam Disk Erişimi olmadan veri kapları ne ölçülebilir ne taşınabilir; her biri ayrı izin sorusu açar.
         let dirs = ["Application Support", "Caches", "Containers", "Group Containers", "Saved Application State", "Preferences", "HTTPStorages", "WebKit"]

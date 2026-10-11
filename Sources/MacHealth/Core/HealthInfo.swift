@@ -33,6 +33,7 @@ struct BatteryInfo: Sendable {
 
 enum BatteryService {
     static func read() -> BatteryInfo? {
+        if Demo.isOn { return Demo.battery }
         let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("AppleSmartBattery"))
         guard service != 0 else { return nil }
         defer { IOObjectRelease(service) }
@@ -74,6 +75,7 @@ enum BatteryHistory {
     }()
 
     static func load() -> [Point] {
+        if Demo.isOn { return Demo.batteryHistory }
         guard let data = try? Data(contentsOf: url) else { return [] }
         let d = JSONDecoder(); d.dateDecodingStrategy = .iso8601
         return (try? d.decode([Point].self, from: data)) ?? []
@@ -81,6 +83,7 @@ enum BatteryHistory {
 
     @discardableResult
     static func record(_ b: BatteryInfo) -> [Point] {
+        if Demo.isOn { return Demo.batteryHistory }
         var points = load()
         if let last = points.last, Calendar.current.isDateInToday(last.date) {
             points[points.count - 1] = Point(date: Date(), health: b.health, cycles: b.cycleCount)
@@ -106,6 +109,7 @@ struct SecurityStatus: Sendable {
     var lowPowerMode: Bool?
 
     static func read() -> SecurityStatus {
+        if Demo.isOn { return Demo.security }
         func out(_ path: String, _ args: [String]) -> String {
             let r = Shell.run(path, args)
             return (r.stdout + r.stderr).lowercased()
@@ -135,6 +139,7 @@ struct SecurityStatus: Sendable {
 enum SoftwareUpdates {
     /// `softwareupdate -l` (ağ gerektirir, birkaç saniye sürebilir).
     static func check() -> [String] {
+        if Demo.isOn { return [] }
         let out = Shell.run("/usr/sbin/softwareupdate", ["-l"]).stdout
         return out.split(separator: "\n")
             .filter { $0.contains("Title:") }

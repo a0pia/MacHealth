@@ -51,6 +51,7 @@ struct StartupItem: Identifiable, Hashable, Sendable {
 
 enum StartupService {
     static func list() -> [StartupItem] {
+        if Demo.isOn { return Demo.startup }
         let home = SafetyGuard.home
         let sources: [(URL, StartupItem.Scope)] = [
             (home.appendingPathComponent("Library/LaunchAgents"), .user),
@@ -148,7 +149,8 @@ enum MaintenanceService {
     static let lsregister = "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister"
 
     static func localSnapshotCount() -> Int {
-        Shell.run("/usr/bin/tmutil", ["listlocalsnapshots", "/"]).stdout
+        if Demo.isOn { return 0 }
+        return Shell.run("/usr/bin/tmutil", ["listlocalsnapshots", "/"]).stdout
             .split(separator: "\n").filter { $0.contains("com.apple.TimeMachine") }.count
     }
 

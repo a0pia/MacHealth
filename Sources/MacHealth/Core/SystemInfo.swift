@@ -53,6 +53,7 @@ struct ProcessInfoRow: Identifiable, Sendable {
 
 enum SystemInfo {
     static func disk() -> DiskStats {
+        if Demo.isOn { return Demo.disk }
         let url = URL(fileURLWithPath: "/")
         let v = try? url.resourceValues(forKeys: [.volumeTotalCapacityKey, .volumeAvailableCapacityForImportantUsageKey, .volumeAvailableCapacityKey])
         let total = Int64(v?.volumeTotalCapacity ?? 0)
@@ -61,6 +62,7 @@ enum SystemInfo {
     }
 
     static func memory() -> MemoryStats {
+        if Demo.isOn { return Demo.memory }
         let total = Int64(ProcessInfo.processInfo.physicalMemory)
         var stats = vm_statistics64()
         var count = mach_msg_type_number_t(MemoryLayout<vm_statistics64_data_t>.size / MemoryLayout<integer_t>.size)
@@ -96,6 +98,7 @@ enum SystemInfo {
 
     /// `ps` ile çalışan işlemler.
     static func processes() -> [ProcessInfoRow] {
+        if Demo.isOn { return Demo.processes }
         let out = Shell.run("/bin/ps", ["-axo", "pid=,pcpu=,rss=,comm="]).stdout
         // Uygulama adlarını tek seferde al (her işlem için ayrı sorgu yapma).
         var names: [Int32: String] = [:]
@@ -113,6 +116,7 @@ enum SystemInfo {
     @MainActor private static var iconCache: [Int32: NSImage?] = [:]
 
     @MainActor static func icon(for pid: Int32) -> NSImage? {
+        if Demo.isOn { return Demo.processIcon(pid) }
         if let cached = iconCache[pid] { return cached }
         let img = NSRunningApplication(processIdentifier: pid)?.icon
         if iconCache.count > 400 { iconCache.removeAll() }
@@ -122,7 +126,7 @@ enum SystemInfo {
 
     static var thermalState: ProcessInfo.ThermalState { ProcessInfo.processInfo.thermalState }
 
-    static var uptime: TimeInterval { ProcessInfo.processInfo.systemUptime }
+    static var uptime: TimeInterval { Demo.isOn ? Demo.uptime : ProcessInfo.processInfo.systemUptime }
 
     static var macModel: String {
         var size = 0

@@ -60,6 +60,12 @@ final class DiskMapModel: ObservableObject {
         hovered = nil
         accessDenied = false
 
+        if Demo.isOn {
+            let map: (items: [CleanItem], dirs: Set<URL>) = url == SafetyGuard.home ? Demo.homeMap : ([], [])
+            nodes = map.items; dirs = map.dirs; isLoading = false
+            return Task {}
+        }
+
         if !force, let cached = cache[url] {
             withAnimation(.spring(duration: 0.35)) {
                 nodes = cached.items
